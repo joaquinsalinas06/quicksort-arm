@@ -1,80 +1,82 @@
 .global _start
 _start:
-    MOV r0, #0x400
+	//Se cargan los datos requeridos a memoria, uno a uno segun el orden del ejemplo
+    MOV R0, #0x400
+    MOV R1, #34
+    STR R1, [R0], #4
+    MOV R1, #7
+    STR R1, [R0], #4
+    MOV R1, #23
+    STR R1, [R0], #4
+    MOV R1, #32
+    STR R1, [R0], #4
+    MOV R1, #5
+    STR R1, [R0], #4
+    MOV R1, #62
+    STR R1, [R0], #4
 
-    MOV r1, #34
-    STR r1, [r0], #4
-
-    MOV r1, #7
-    STR r1, [r0], #4
-
-    MOV r1, #23
-    STR r1, [r0], #4
-
-    MOV r1, #32
-    STR r1, [r0], #4
-
-    MOV r1, #5
-    STR r1, [r0], #4 
-
-    MOV r1, #62
-    STR r1, [r0], #4  
-
-    MOV r0, #0x400 
-    MOV r1, #6
-
-    bl quicksort
+    MOV R0, #0x400 //Dado que usamos post index, se resetea el valor de la memoria al original  
+    MOV R1, #6 //Se define el tamaño del arreglo
 	
-	loop:
-	b loop
-	
+	BL quicksort
+
+loop:
+B loop              
+
 quicksort:
-    cmp r1, #1 //Caso base, donde la longitud del arreglo sea 1
-    ble return
+    CMP R1, #1 //Vamos a estar modificando la longitud según sea el subarreglo con el que estemos trabajando
+    BLE end
 
-    mov r2, r1
-    lsr r2, r2, #1 //El pivote se toma el elemento del medio, por lo que dividimos n/2
-    ldr r3, [r0, r2, lsl #2] //Extraemos el valor del valor del pivote medio 
+    MOV R2, R1 
+    ASR R2, R2, #1 //Se calcula la mitad de todo el array
+    LDR R3, [R0, R2, LSL #2] //El valor en la posicion de la mitad del array se carga en R3, donde R3 es el pivote
 
-    mov r4, #0 //Definimos nuestro puntero al inicio del array
-    sub r5, r1, #1 //Definimos nuestro puntero al final del array
+    MOV R4, R0 //Se define a R4 la direccion inicial
+    ADD R5, R0, R1, LSL #2 //Se define R5 como la posicion Final del arreglo según l
 
-dividir:
-    ldr r6, [r0, r4, lsl #2] //Se accede al elemento que esta en la posicion más a la iquierda del subarreglo
-    cmp r6, r3 //El valor es menor que el pivote? En tal caso, el elemento deberia estar en la izquierda del subarreglo
-    blt izquierda
+while_loop:
 
-    ldr r7, [r0, r5, lsl #2] //Se accede al elemento que esta en la posicion más a la derecha del subarreglo
-    cmp r7, r3 //El valor es mayor que el pivote? En tal caso, el elemento deberia estar en la derecha del subarreglo
-    bgt derecha
+left_point:
+    LDR R6, [R4] //Lo que sea que este al inicio del arreglo 
+    CMP R6, R3 //Comparamos lo que estaba al inicio del arreglo
+    BGE right_point      // Si R6 >= pivote, detenemos el movimiento del puntero
+    ADD R4, R4, #4     // En caso no sea mayor o igual, eso quiere decir que el valor esta correctamente a la izquierda del pivote, asi que avanza hacia la derecha
+    B left_point //Se llama asi mismo hasta que encuentre un valor mayor o igual que el pivote, en tal caso, se va a la branch right_point
 
-    cmp r4, r5 //Vemos si es que los indices han chocado, es decir, si el puntero de la izquierda sobrepaso el de la derecha
-    bge reorder //Si se da el caso, hay que reorganizar el mismo proceso, pero con el subarreglo izquierdo
-    str r7, [r0, r4, lsl #2]
-    str r6, [r0, r5, lsl #2]
+right_point:
+    SUB R5, R5, #4 // De la direccion base, dado que la calculamos con el size, le reducimos 1 espacio, ademas de cada espacio que tiene que moverse cada vez que el valor leido sea mayor que el pivote
+    LDR R7, [R5] // Se carga el valor en la ultima posicion del array
+    CMP R7, R3 //Se compara este valor cargado con el del pivote
+    BLE swap     // Si R7 <= pivote, detente
+    B right_point // Se llama a la branch de right_pointer hasta que encuentre un valor menor al pivote a la derecha del array
 
-    add r4, r4, #1
-    sub r5, r5, #1
-    b dividir
+swap:
+    CMP R4, R5 //Verifica si es que el puntero de la derecha esta más hacia la izquierda que el propio puntero de la izquierda
+    BGE divide //En caso si, se ha recorrido exitosamente esa parte del arreglo, por lo que vamos a dividir/partir el arreglo
 
-izquierda:
-    add r4, r4, #1 //Se avanza el puntero 1, dado que sabemos que ese elemento si deberia estar en la izquierda del pivote
-    b dividir
+    LDR R6, [R4] //En caso no pase esto, lo que hacemos es un intercambio de variables, del valor mayor al pivote a la izquierda de este, y del valor menor al pivote a la derecha de este, que determinamos con los punteros
+    LDR R7, [R5]
+    STR R7, [R4]
+    STR R6, [R5]
 
-derecha:
-    sub r5, r5, #1 //Se retrocede el puntero en 1, dado que sabemos que ese elemnto esta correctamente posicinado a la derecha
-    b dividir
+    ADD R4, R4, #4 //Movemos el pivote izquierdo a la derecha
+    SUB R5, R5, #4 //Movemos el pivote derecho a la izquierda
+    B while_loop //Repetimos el proceso, hasta que el pivote de la derecha supere al de la izquierda
 
-reorder:
-    push {r0, r1, lr} //Se almacena la direccion, la longitud del ultimo subarreglo y la referencia a la llamada de la funcion
-    mov r1, r5 // La longitud se define desde iniciar hasta donde ha llegado el puntero derecho, eso quiere decir, que la se arregla el subarreglo derecho
-    bl quicksort
-	//en este punto se retorna cuando hayamos llegado al return, y esto es cuando la longitud es 1, dado que el valor del puntero derecho tiene menos que recorrer
+divide:
+    SUB R6, R4, R0 //Guardamos la diferencia entre el inicio y la posicion final del puntero izquierdo
+    ASR R6, R6, #2 //Dividimos entre 4 esta diferencia, obteniendo el tamaño entre el inicio y el puntero izquierdo
+    PUSH {R0, R6, LR} //Guardamos en el stack tanto la posicion inicial como el tamaño, siendo asi que estamos guardando el subarreglo izquierd
 
-    pop {r0, r1, lr}
-    add r0, r0, r4, lsl #2 
-    sub r1, r1, r4    
-    bl quicksort
+    MOV R0, R4 //en la direccion R0, movemos el valor del puntero izquierdo
+    SUB R1, R1, R6 // Se resta del tamaño total, el tamaño del subarreglo izquierdo, quedandonos asi con el subarreglo derecho
+    B quicksort //Se llama a la funcion pero a partir del valor del subarreglo que estamos analizando
 
-return: //En caso el subarreglo sea de tamaño 1, entonces retornamos a la ultima llamada de la funcion 
-    bx lr
+end:
+    POP {R0, R1, LR} //Se llega aqui cuando el valor del subarreglo actual es 1, en tal caso, recuperamos el valor del subarreglo derecho al que estabamos analizando
+    CMP R1, #1 //Se comprueba que ese subarreglo derecho sea de un tamaño mayor a 1
+    BLE return //Si es de tamaño 1, se termina el algoritmo
+    B quicksort //En cualquier otro caso, se vuelve a llamar al algoritmo, pero tomando el subarray izquierdo
+
+return:
+    MOV PC, LR //Se usa el valor guardado en el LR, para regresar a donde se hizo la llamada
