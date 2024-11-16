@@ -170,12 +170,14 @@ divide:
 	BEQ push
 	PUSH {R0, R6} //Guardamos en el stack tanto la posicion inicial como el tamaño, siendo asi que estamos guardando el subarreglo izquierd
 
-	push:
+push:
     MOV R0, R4 //en la direccion R0, movemos el valor del puntero izquierdo
     SUB R1, R1, R6 // Se resta del tamaño total, el tamaño del subarreglo izquierdo, quedandonos asi con el subarreglo derecho
     B quicksort //Se llama a la funcion pero a partir del valor del subarreglo que estamos analizando
 
 end:
+    CMP SP, #0 // Verifica si el stack está vacío
+    BEQ return // Si está vacío, termina
     POP {R0, R1} //Se llega aqui cuando el valor del subarreglo actual es 1, en tal caso, recuperamos el valor del subarreglo derecho al que estabamos analizando
     CMP R1, #1 //Se comprueba que ese subarreglo derecho sea de un tamaño mayor a 1
     BLE return //Si es de tamaño 1, se termina el algoritmo
