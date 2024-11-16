@@ -1,22 +1,21 @@
 .global _start
 _start:
 
-	MOV R0, #0
-    MOV R1, #0
-    MOV R2, #0
-    MOV R3, #0
-    MOV R4, #0
-    MOV R5, #0
-    MOV R6, #0
-    MOV R7, #0
-    MOV R8, #0
-    MOV R9, #0
+	MOV R0, #0 // Direccion Base
+    MOV R1, #0 // Tamaño del arreglo
+    MOV R2, #0 // Pivote Medio
+    MOV R3, #0 // Valor del Pivote Medio
+    MOV R4, #0 // Puntero Izquierdo
+    MOV R5, #0 // Puntero Derecho
+    MOV R6, #0 // Valor del Puntero Izquierdo/Nuevo tamaño del arreglo
+    MOV R7, #0 // Valor del Puntero Derecho
+    MOV R8, #0 // Contador de Cambios
+    MOV R9, #0 // Contador de Llamadas a Quicksort
 
-	MOV LR, #0
-	MOV SP, #0
+	MOV LR, #0 //Se resetea el valor de LR
+	MOV SP, #0 //Se resetea el valor de SP
 	
-	
-//Se cargan los datos requeridos a memoria, uno a uno segun el orden del ejemplo
+    //Se cargan los datos requeridos a memoria, uno a uno segun el orden del ejemplo
     MOV R0, #0x400
     MOV R1, #34
     STR R1, [R0], #4
