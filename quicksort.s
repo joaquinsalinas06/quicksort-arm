@@ -1,6 +1,19 @@
 .global _start
 _start:
-	//Se cargan los datos requeridos a memoria, uno a uno segun el orden del ejemplo
+
+	MOV R0, #0
+    MOV R1, #0
+    MOV R2, #0
+    MOV R3, #0
+    MOV R4, #0
+    MOV R5, #0
+    MOV R6, #0
+    MOV R7, #0
+
+	MOV LR, #0
+	MOV SP, #0
+	
+//Se cargan los datos requeridos a memoria, uno a uno segun el orden del ejemplo
     MOV R0, #0x400
     MOV R1, #34
     STR R1, [R0], #4
@@ -33,6 +46,7 @@ quicksort:
 
     MOV R4, R0 //Se define a R4 la direccion inicial
     ADD R5, R0, R1, LSL #2 //Se define R5 como la posicion Final del arreglo según l
+	SUB R5, R5, #4
 
 while_loop:
 
@@ -44,10 +58,10 @@ left_point:
     B left_point //Se llama asi mismo hasta que encuentre un valor mayor o igual que el pivote, en tal caso, se va a la branch right_point
 
 right_point:
-    SUB R5, R5, #4 // De la direccion base, dado que la calculamos con el size, le reducimos 1 espacio, ademas de cada espacio que tiene que moverse cada vez que el valor leido sea mayor que el pivote
     LDR R7, [R5] // Se carga el valor en la ultima posicion del array
     CMP R7, R3 //Se compara este valor cargado con el del pivote
     BLE swap     // Si R7 <= pivote, detente
+	SUB R5, R5, #4 // De la direccion base, dado que la calculamos con el size, le reducimos 1 espacio, ademas de cada espacio que tiene que moverse cada vez que el valor leido sea mayor que el pivote
     B right_point // Se llama a la branch de right_pointer hasta que encuentre un valor menor al pivote a la derecha del array
 
 swap:
@@ -66,14 +80,17 @@ swap:
 divide:
     SUB R6, R4, R0 //Guardamos la diferencia entre el inicio y la posicion final del puntero izquierdo
     ASR R6, R6, #2 //Dividimos entre 4 esta diferencia, obteniendo el tamaño entre el inicio y el puntero izquierdo
-    PUSH {R0, R6, LR} //Guardamos en el stack tanto la posicion inicial como el tamaño, siendo asi que estamos guardando el subarreglo izquierd
+    CMP R6, #1
+	BEQ push
+	PUSH {R0, R6} //Guardamos en el stack tanto la posicion inicial como el tamaño, siendo asi que estamos guardando el subarreglo izquierd
 
+	push:
     MOV R0, R4 //en la direccion R0, movemos el valor del puntero izquierdo
     SUB R1, R1, R6 // Se resta del tamaño total, el tamaño del subarreglo izquierdo, quedandonos asi con el subarreglo derecho
     B quicksort //Se llama a la funcion pero a partir del valor del subarreglo que estamos analizando
 
 end:
-    POP {R0, R1, LR} //Se llega aqui cuando el valor del subarreglo actual es 1, en tal caso, recuperamos el valor del subarreglo derecho al que estabamos analizando
+    POP {R0, R1} //Se llega aqui cuando el valor del subarreglo actual es 1, en tal caso, recuperamos el valor del subarreglo derecho al que estabamos analizando
     CMP R1, #1 //Se comprueba que ese subarreglo derecho sea de un tamaño mayor a 1
     BLE return //Si es de tamaño 1, se termina el algoritmo
     B quicksort //En cualquier otro caso, se vuelve a llamar al algoritmo, pero tomando el subarray izquierdo
