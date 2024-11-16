@@ -9,6 +9,8 @@ _start:
     MOV R5, #0
     MOV R6, #0
     MOV R7, #0
+    MOV R8, #0
+    MOV R9, #0
 
 	MOV LR, #0
 	MOV SP, #0
@@ -30,13 +32,14 @@ _start:
 
     MOV R0, #0x400 //Dado que usamos post index, se resetea el valor de la memoria al original  
     MOV R1, #6 //Se define el tamaño del arreglo
-	
-	BL quicksort
+	      
+BL quicksort
 
 loop:
 B loop              
 
 quicksort:
+	ADD R9, R9, #1 //Contador para ver cuantas veces se llama a quicksort
     CMP R1, #1 //Vamos a estar modificando la longitud según sea el subarreglo con el que estemos trabajando
     BLE end
 
@@ -47,6 +50,7 @@ quicksort:
     MOV R4, R0 //Se define a R4 la direccion inicial
     ADD R5, R0, R1, LSL #2 //Se define R5 como la posicion Final del arreglo según l
 	SUB R5, R5, #4
+	MOV R8, #0 //Inicializamos el contador de cambios en 0
 
 while_loop:
 
@@ -66,16 +70,22 @@ right_point:
 
 swap:
     CMP R4, R5 //Verifica si es que el puntero de la derecha esta más hacia la izquierda que el propio puntero de la izquierda
-    BGE divide //En caso si, se ha recorrido exitosamente esa parte del arreglo, por lo que vamos a dividir/partir el arreglo
-
+    BGE check_sorted //En caso si, se ha recorrido exitosamente esa parte del arreglo, por lo que vamos a dividir/partir el arreglo, pero siempre y cuando hayan habido cambios
+    
     LDR R6, [R4] //En caso no pase esto, lo que hacemos es un intercambio de variables, del valor mayor al pivote a la izquierda de este, y del valor menor al pivote a la derecha de este, que determinamos con los punteros
     LDR R7, [R5]
     STR R7, [R4]
     STR R6, [R5]
+    ADD R8, R8, #1 //Incrementamos el contador de cambios
 
     ADD R4, R4, #4 //Movemos el pivote izquierdo a la derecha
     SUB R5, R5, #4 //Movemos el pivote derecho a la izquierda
     B while_loop //Repetimos el proceso, hasta que el pivote de la derecha supere al de la izquierda
+
+check_sorted:
+    CMP R8, #0 //Verificamos si hubo cambios
+    BNE divide //Si hubo cambios, procedemos a dividir
+    B end //Si no hubo cambios, el subarreglo ya está ordenado
 
 divide:
     SUB R6, R4, R0 //Guardamos la diferencia entre el inicio y la posicion final del puntero izquierdo
