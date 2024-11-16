@@ -32,6 +32,43 @@ _start:
 
     MOV R0, #0x400 //Dado que usamos post index, se resetea el valor de la memoria al original  
     MOV R1, #6 //Se define el tamaño del arreglo
+
+    /*  //Se cargan los datos requeridos a memoria, uno a uno segun el orden del ejemplo
+    MOV R0, #0x400
+    MOV R1, #1
+    STR R1, [R0], #4
+    MOV R1, #2
+    STR R1, [R0], #4
+    MOV R1, #3
+    STR R1, [R0], #4
+    MOV R1, #4
+    STR R1, [R0], #4
+    MOV R1, #5
+    STR R1, [R0], #4
+    MOV R1, #6
+    STR R1, [R0], #4
+    MOV R1, #7
+    STR R1, [R0], #4
+    MOV R1, #8
+    STR R1, [R0], #4
+    MOV R1, #9
+    STR R1, [R0], #4
+    MOV R1, #10
+    STR R1, [R0], #4
+    MOV R1, #17
+    STR R1, [R0], #4
+    MOV R1, #19
+    STR R1, [R0], #4
+    MOV R1, #22
+    STR R1, [R0], #4
+    MOV R1, #25
+    STR R1, [R0], #4
+    MOV R1, #30
+    STR R1, [R0], #4
+
+    MOV R0, #0x400 //Dado que usamos post index, se resetea el valor de la memoria al original  
+    MOV R1, #15 //Se define el tamaño del arreglo
+ */
 	      
 BL quicksort
 
