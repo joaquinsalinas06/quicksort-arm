@@ -33,8 +33,8 @@ _start:
     MOV R0, #0x400 //Dado que usamos post index, se resetea el valor de la memoria al original  
     MOV R1, #6 //Se define el tamaño del arreglo
 
-
-    /*  //Se cargan los datos requeridos a memoria, uno a uno segun el orden del ejemplo
+/*
+      //Se cargan los datos requeridos a memoria, uno a uno segun el orden del ejemplo
     MOV R0, #0x400
     MOV R1, #1
     STR R1, [R0], #4
@@ -69,8 +69,7 @@ _start:
 
     MOV R0, #0x400 //Dado que usamos post index, se resetea el valor de la memoria al original  
     MOV R1, #15 //Se define el tamaño del arreglo
- */
-
+*/
     /*   
 //Se cargan los datos requeridos a memoria, uno a uno segun el orden del ejemplo
     MOV R0, #0x400
@@ -159,6 +158,8 @@ swap:
     B while_loop //Repetimos el proceso, hasta que el pivote de la derecha supere al de la izquierda
 
 check_sorted:
+	CMP R1, #3
+	BGT divide
     CMP R8, #0 //Verificamos si hubo cambios
     BNE divide //Si hubo cambios, procedemos a dividir
     B end //Si no hubo cambios, el subarreglo ya está ordenado
